@@ -1,13 +1,15 @@
 import React from 'react'
 import { useState } from 'react'
 import FormInput from '../form-input/FormInput'
-import Button from '../Button/Button'
+import Button, { BUTTON_TYPE_CLASS } from '../Button/Button'
+
+import { SignInContainer, ButtonContainer } from './SignIn.style'
+
 import {
   signInWithGooglePopup,
-  createUserDocumentFromAuth,
   SignInUserWithEmailAndPassword,
 } from '../../utils/firebase/firebase.utils'
-import './SignIn.style.scss'
+import './SignIn.style.jsx'
 
 const defaultState = {
   email: '',
@@ -22,12 +24,15 @@ const SignIn = () => {
     event.preventDefault()
 
     try {
-      const response = await SignInUserWithEmailAndPassword(email, password)
-      console.log(response)
+      await SignInUserWithEmailAndPassword(email, password)
       setFormFields(defaultState)
     } catch (error) {
       if (error.code === 'auth/invalid-email') {
         alert('Invalid Email')
+      }
+
+      if (error.code === 'auth/user-not-found') {
+        alert('User not found')
       }
 
       console.log('user creation encountered an error', error)
@@ -35,8 +40,7 @@ const SignIn = () => {
   }
 
   const logGoogleUser = async () => {
-    const { user } = await signInWithGooglePopup()
-    await createUserDocumentFromAuth(user)
+    await signInWithGooglePopup()
   }
 
   const handleChange = (event) => {
@@ -45,7 +49,7 @@ const SignIn = () => {
   }
 
   return (
-    <div className='sign-in-container'>
+    <SignInContainer>
       <h2>Already have an account?</h2>
       <p>Sign in with your email and password</p>
       <form onSubmit={handleSubmit}>
@@ -67,14 +71,14 @@ const SignIn = () => {
           value={password}
         />
 
-        <div className='buttons-container'>
+        <ButtonContainer>
           <Button type='submit'>Sign In</Button>
-          <Button onClick={logGoogleUser} buttonType='google'>
+          <Button onClick={logGoogleUser} buttonType={BUTTON_TYPE_CLASS.google}>
             Sign in with Google
           </Button>
-        </div>
+        </ButtonContainer>
       </form>
-    </div>
+    </SignInContainer>
   )
 }
 

@@ -5,8 +5,19 @@ import {
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
 } from 'firebase/auth'
-import { doc, getFirestore, setDoc, getDoc } from 'firebase/firestore'
+import {
+  doc,
+  getFirestore,
+  setDoc,
+  getDoc,
+  collection,
+  writeBatch,
+  query,
+  getDocs,
+} from 'firebase/firestore'
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_APIKEY,
@@ -28,6 +39,36 @@ const auth = getAuth()
 const signInWithGooglePopup = () => signInWithPopup(auth, provider)
 
 const db = getFirestore()
+
+const addCollectionAndDocuments = async (collectionKey, objectsToAdd) => {
+  const collectionRef = collection(db, collectionKey)
+  const batch = writeBatch(db)
+
+  objectsToAdd.map((object) => {
+    const docRef = doc(collectionRef, object.title.toLowerCase())
+    batch.set(docRef, object)
+    return 'success set batch'
+  })
+
+  await batch.commit()
+  console.log('done')
+}
+
+const getCategoriesAndDocuments = async () => {
+  const collectionRef = collection(db, 'categories')
+  const q = query(collectionRef)
+
+  const querySnapshot = await getDocs(q)
+  const categoryMap = querySnapshot.docs.reduce((acc, docSnapShot) => {
+    const { title, items } = docSnapShot.data()
+    acc[title.toLowerCase()] = items
+
+    return acc
+  }, {})
+
+  return categoryMap
+}
+
 const createUserDocumentFromAuth = async (userAuth, additionalInformation) => {
   const userDocRef = doc(db, 'users', userAuth.uid)
   console.log(userDocRef)
@@ -65,10 +106,19 @@ const SignInUserWithEmailAndPassword = async (email, password) => {
   return await signInWithEmailAndPassword(auth, email, password)
 }
 
+const signOutUser = async () => await signOut(auth)
+
+const onAuthStateChangedListener = (callback) =>
+  onAuthStateChanged(auth, callback)
+
 export {
   auth,
   signInWithGooglePopup,
   createUserDocumentFromAuth,
   createAuthUserWithEmailAndPassword,
   SignInUserWithEmailAndPassword,
+  signOutUser,
+  onAuthStateChangedListener,
+  addCollectionAndDocuments,
+  getCategoriesAndDocuments,
 }

@@ -1,12 +1,12 @@
 import React from 'react'
 import CategoryCard from '../../../components/category-item/CategoryCard'
-import './CategoriesList.styles.scss'
+import { CategoriesContainer } from './CategoriesList.styles'
 
 const CategoriesList = ({ categories }) => {
   return (
-    <div className='categories-container'>
+    <CategoriesContainer>
       <CategoryCard categories={categories} />
-    </div>
+    </CategoriesContainer>
   )
 }
 
