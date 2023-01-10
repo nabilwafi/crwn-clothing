@@ -51,7 +51,6 @@ const addCollectionAndDocuments = async (collectionKey, objectsToAdd) => {
   })
 
   await batch.commit()
-  console.log('done')
 }
 
 const getCategoriesAndDocuments = async () => {
@@ -71,11 +70,8 @@ const getCategoriesAndDocuments = async () => {
 
 const createUserDocumentFromAuth = async (userAuth, additionalInformation) => {
   const userDocRef = doc(db, 'users', userAuth.uid)
-  console.log(userDocRef)
 
   const snapShot = await getDoc(userDocRef)
-  console.log(snapShot)
-  console.log(snapShot.exists())
 
   if (!snapShot.exists()) {
     const { displayName, email } = userAuth
@@ -89,7 +85,7 @@ const createUserDocumentFromAuth = async (userAuth, additionalInformation) => {
         ...additionalInformation,
       })
     } catch (error) {
-      console.log('error creating the user', error.message)
+      alert('error creating the user', error.message)
     }
   }
 }

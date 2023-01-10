@@ -34,8 +34,6 @@ const SignIn = () => {
       if (error.code === 'auth/user-not-found') {
         alert('User not found')
       }
-
-      console.log('user creation encountered an error', error)
     }
   }
 
