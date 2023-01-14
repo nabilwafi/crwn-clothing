@@ -5,11 +5,12 @@ import Button, { BUTTON_TYPE_CLASS } from '../Button/Button'
 
 import { SignInContainer, ButtonContainer } from './SignIn.style'
 
-import {
-  signInWithGooglePopup,
-  SignInUserWithEmailAndPassword,
-} from '../../utils/firebase/firebase.utils'
 import './SignIn.style.jsx'
+import { useDispatch } from 'react-redux'
+import {
+  emailSignInStart,
+  googleSignInStart,
+} from '../../store/user/user.action'
 
 const defaultState = {
   email: '',
@@ -17,6 +18,7 @@ const defaultState = {
 }
 
 const SignIn = () => {
+  const dispatch = useDispatch()
   const [formFields, setFormFields] = useState(defaultState)
   const { email, password } = formFields
 
@@ -24,21 +26,15 @@ const SignIn = () => {
     event.preventDefault()
 
     try {
-      await SignInUserWithEmailAndPassword(email, password)
+      dispatch(emailSignInStart(email, password))
       setFormFields(defaultState)
     } catch (error) {
-      if (error.code === 'auth/invalid-email') {
-        alert('Invalid Email')
-      }
-
-      if (error.code === 'auth/user-not-found') {
-        alert('User not found')
-      }
+      console.log('user sign in failed', error)
     }
   }
 
-  const logGoogleUser = async () => {
-    await signInWithGooglePopup()
+  const signInWithGoogle = () => {
+    dispatch(googleSignInStart())
   }
 
   const handleChange = (event) => {
@@ -71,7 +67,9 @@ const SignIn = () => {
 
         <ButtonContainer>
           <Button type='submit'>Sign In</Button>
-          <Button onClick={logGoogleUser} buttonType={BUTTON_TYPE_CLASS.google}>
+          <Button
+            onClick={signInWithGoogle}
+            buttonType={BUTTON_TYPE_CLASS.google}>
             Sign in with Google
           </Button>
         </ButtonContainer>

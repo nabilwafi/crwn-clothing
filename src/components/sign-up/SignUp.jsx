@@ -1,12 +1,12 @@
 import React from 'react'
 import { useState } from 'react'
-import {
-  createAuthUserWithEmailAndPassword,
-  createUserDocumentFromAuth,
-} from '../../utils/firebase/firebase.utils'
 import FormInput from '../form-input/FormInput'
 import Button from '../Button/Button'
 import { SignUpContainer } from './SignUp.style'
+import { useDispatch, useSelector } from 'react-redux'
+import { signUpStart } from '../../store/user/user.action'
+import { selectedUserError } from '../../store/user/user.selector'
+import { errorMessage } from '../../utils/errors/errors.utils'
 
 const defaultState = {
   displayName: '',
@@ -16,6 +16,8 @@ const defaultState = {
 }
 
 const SignUp = () => {
+  const dispatch = useDispatch()
+  const error = useSelector(selectedUserError)
   const [formFields, setFormFields] = useState(defaultState)
   const { displayName, email, password, confirmPassword } = formFields
 
@@ -30,18 +32,8 @@ const SignUp = () => {
       return
     }
 
-    try {
-      const { user } = await createAuthUserWithEmailAndPassword(email, password)
-      await createUserDocumentFromAuth(user, { displayName })
-      resetFromFields()
-    } catch (error) {
-      if (error.code === 'auth/invalid-email') {
-        alert('Invalid Email')
-      }
-      if (error.code === 'auth/email-already-in-use') {
-        alert('Email already in use')
-      }
-    }
+    dispatch(signUpStart(email, password, displayName))
+    resetFromFields()
   }
 
   const handleChange = (event) => {
@@ -51,6 +43,7 @@ const SignUp = () => {
 
   return (
     <SignUpContainer>
+      {error && <div>{errorMessage(error)}</div>}
       <h2>Don't have an account?</h2>
       <p>Sign up with your email and password</p>
       <form onSubmit={handleSubmit}>

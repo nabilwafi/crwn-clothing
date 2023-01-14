@@ -13,7 +13,7 @@ const CategoryCard = ({ categories }) => {
     const goToHandler = () => navigate(route)
 
     return (
-      <CategoryItemContainer onClick={goToHandler}>
+      <CategoryItemContainer key={id} onClick={goToHandler}>
         <BackgroundImage imageUrl={imageUrl}></BackgroundImage>
         <CategoryBodyContainer>
           <h2 className='card-title'>{title}</h2>

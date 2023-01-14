@@ -58,22 +58,15 @@ const getCategoriesAndDocuments = async () => {
   const q = query(collectionRef)
 
   const querySnapshot = await getDocs(q)
-  const categoryMap = querySnapshot.docs.reduce((acc, docSnapShot) => {
-    const { title, items } = docSnapShot.data()
-    acc[title.toLowerCase()] = items
-
-    return acc
-  }, {})
-
-  return categoryMap
+  return querySnapshot.docs.map((docSnapshot) => docSnapshot.data())
 }
 
 const createUserDocumentFromAuth = async (userAuth, additionalInformation) => {
   const userDocRef = doc(db, 'users', userAuth.uid)
 
-  const snapShot = await getDoc(userDocRef)
+  const UsersnapShot = await getDoc(userDocRef)
 
-  if (!snapShot.exists()) {
+  if (!UsersnapShot.exists()) {
     const { displayName, email } = userAuth
     const createdAt = new Date()
 
@@ -88,6 +81,8 @@ const createUserDocumentFromAuth = async (userAuth, additionalInformation) => {
       alert('error creating the user', error.message)
     }
   }
+
+  return UsersnapShot
 }
 
 const createAuthUserWithEmailAndPassword = async (email, password) => {
@@ -107,6 +102,19 @@ const signOutUser = async () => await signOut(auth)
 const onAuthStateChangedListener = (callback) =>
   onAuthStateChanged(auth, callback)
 
+const getCurrentUser = () => {
+  return new Promise((resolve, reject) => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (userAuth) => {
+        unsubscribe()
+        resolve(userAuth)
+      },
+      reject
+    )
+  })
+}
+
 export {
   auth,
   signInWithGooglePopup,
@@ -115,6 +123,7 @@ export {
   SignInUserWithEmailAndPassword,
   signOutUser,
   onAuthStateChangedListener,
+  getCurrentUser,
   addCollectionAndDocuments,
   getCategoriesAndDocuments,
 }

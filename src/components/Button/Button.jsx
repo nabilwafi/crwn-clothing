@@ -1,5 +1,10 @@
 import React from 'react'
-import { BaseButton, GoogleButton, InvertedButton } from './Button.style.jsx'
+import {
+  BaseButton,
+  GoogleButton,
+  InvertedButton,
+  LoadingSpinner,
+} from './Button.style.jsx'
 
 export const BUTTON_TYPE_CLASS = {
   base: 'base',
@@ -14,9 +19,13 @@ const getButton = (buttonType = BUTTON_TYPE_CLASS.base) =>
     [BUTTON_TYPE_CLASS.inverted]: InvertedButton,
   }[buttonType])
 
-const Button = ({ children, buttonType, ...otherProps }) => {
+const Button = ({ children, buttonType, isLoading, ...otherProps }) => {
   const CustomButton = getButton(buttonType)
-  return <CustomButton {...otherProps}>{children}</CustomButton>
+  return (
+    <CustomButton disabled={isLoading} {...otherProps}>
+      {isLoading ? <LoadingSpinner /> : children}
+    </CustomButton>
+  )
 }
 
 export default Button
